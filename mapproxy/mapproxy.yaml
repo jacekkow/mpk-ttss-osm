@@ -1,0 +1,87 @@
+parts:
+  coverages:
+    extent: &coverage-extent
+      datasource: extent.geojson
+      srs: 'EPSG:4326'
+    world: &coverage-world
+      bbox: [-180, -90, 180, 90]
+      srs: 'EPSG:4326'
+    world_except_extent: &coverage-world-except
+      difference:
+        - *coverage-world
+        - *coverage-extent
+
+globals:
+  image:
+    resampling_method: bilinear
+    paletted: true
+  cache:
+    meta_size: [4, 4]
+
+grids:
+  webmercator:
+    srs: 'EPSG:3857'
+    origin: nw
+    min_res: 156543.03392804097
+  webmercator_x1:
+    srs: 'EPSG:3857'
+    origin: nw
+    min_res: 156543.03392804097
+  webmercator_x2:
+    srs: 'EPSG:3857'
+    origin: nw
+    min_res: 78271.51696402048
+    tile_size: [512,512]
+
+sources:
+  osm_source:
+    type: tile
+    url: http://tile.openstreetmap.org/%(z)s/%(x)s/%(y)s.png
+    concurrent_requests: 4
+    grid: webmercator
+    max_res: 2445.98490512564
+    coverage: *coverage-world-except
+    on_error:
+      204:
+        response: transparent
+        cache: True
+      other:
+        response: '#ff0000'
+        cache: False
+  mapnik_pl_x1_source:
+    type: mapnik
+    mapfile: ../carto/mapnik.xml
+    concurrent_requests: 12
+    coverage: *coverage-extent
+  mapnik_pl_x2_source:
+    type: mapnik
+    mapfile: ../carto/mapnik.xml
+    scale_factor: 2
+    concurrent_requests: 12
+    coverage: *coverage-extent
+
+caches:
+  osm_cache:
+    sources: [osm_source]
+    grids: [webmercator]
+  mapnik_x1_cache:
+    sources: [mapnik_pl_x1_source]
+    grids: [webmercator_x1]
+  mapnik_x2_cache:
+    sources: [mapnik_pl_x2_source]
+    grids: [webmercator_x2]
+
+layers:
+  - name: osm
+    title: OpenStreetMap
+    sources: [osm_cache]
+  - name: mapnik_x1
+    title: OpenStreetMap Extent
+    sources: [mapnik_x1_cache]
+  - name: mapnik_x2
+    title: OpenStreetMap Extent
+    sources: [mapnik_x2_cache]
+
+services:
+  tms:
+    use_grid_names: true
