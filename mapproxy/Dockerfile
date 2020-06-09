@@ -15,6 +15,8 @@ EXPOSE 8080
 USER mapproxy
 WORKDIR /home/mapproxy
 
+ENV MAPPROXY_PROCESSES 4
+
 COPY mapproxy.yaml wsgi.py start.sh ./
 COPY mapnik.py /usr/lib/python2.7/dist-packages/mapproxy/source/mapnik.py
 

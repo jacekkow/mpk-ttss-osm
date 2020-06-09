@@ -51,13 +51,13 @@ sources:
   mapnik_pl_x1_source:
     type: mapnik
     mapfile: ../carto/mapnik.xml
-    concurrent_requests: 12
+    concurrent_requests: 1
     coverage: *coverage-extent
   mapnik_pl_x2_source:
     type: mapnik
     mapfile: ../carto/mapnik.xml
     scale_factor: 2
-    concurrent_requests: 12
+    concurrent_requests: 1
     coverage: *coverage-extent
 
 caches:
